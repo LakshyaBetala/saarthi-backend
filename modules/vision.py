@@ -2,8 +2,15 @@
 from ultralytics import YOLO
 from .utils import capture_frame
 
-# Load YOLOv8 model once
+import os
+if not os.path.exists("yolov8n.pt"):
+    import urllib.request
+    urllib.request.urlretrieve(
+        "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt",
+        "yolov8n.pt"
+    )
 yolo_model = YOLO("yolov8n.pt")
+
 
 # Indoor objects to detect
 indoor_objects = [
