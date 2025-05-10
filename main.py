@@ -1,14 +1,26 @@
+# main.py
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
-from modules.vision import detect_objects_and_direction
-from modules.emotion import analyze_emotion
+from fastapi.responses import FileResponse
 from modules.audio import speak
 from modules.search import google_search_summary
 from modules.utils import set_camera_url, get_camera_url
-from fastapi.responses import FileResponse
-
-import os
+from modules.emotion import analyze_emotion
+import os, urllib.request
 import uvicorn
+
+# ✅ Download YOLOv8 model before import
+MODEL_PATH = "models/yolov8n.pt"
+if not os.path.exists("models"):
+    os.makedirs("models")
+if not os.path.exists(MODEL_PATH):
+    urllib.request.urlretrieve(
+        "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt",
+        MODEL_PATH
+    )
+
+# ✅ Now safe to import vision
+from modules.vision import detect_objects_and_direction
 
 app = FastAPI()
 
@@ -20,24 +32,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/set_camera_url")
 def set_url(ip: str = Form(...)):
-    """Set IP Webcam address (e.g., 192.168.1.5)"""
     url = f"http://{ip}:8080/video"
     set_camera_url(url)
     return {"message": "Camera connected", "stream_url": url}
 
 @app.get("/assistant/listen")
 def listen_for_command():
-    """Voice-activated assistant interface"""
     from modules.assistant import continuous_assistant
     return continuous_assistant()
 
 @app.get("/detect_objects")
 def detect_objects():
     url = get_camera_url()
-    return detect_objects_and_direction(url)
+    return detect_objects_and_direction(url, model_path=MODEL_PATH)
 
 @app.get("/analyze_emotion")
 def detect_emotion():
@@ -48,14 +57,11 @@ def detect_emotion():
 def search_query(query: str = Form(...)):
     return google_search_summary(query)
 
-
 @app.post("/speak")
 def speak_text(text: str = Form(...)):
     path = speak(text, save_audio=True)
     return FileResponse(path, media_type="audio/mpeg", filename="output.mp3")
 
-
-# ✅ Run server using PORT from Render, default to 10000
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
