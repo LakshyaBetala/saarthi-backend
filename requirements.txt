@@ -1,4 +1,3 @@
-# Core APIs
 fastapi
 uvicorn
 python-dotenv
@@ -7,23 +6,17 @@ beautifulsoup4
 pillow
 python-multipart
 
-# Vision
 opencv-python
-ultralytics==8.3.130
+ultralytics==8.1.36
 
-# Audio + Voice
 gtts
 pywhatkit
 SpeechRecognition
 pydub
 playsound==1.2.2
 
-
-# Deep learning (compatible with DeepFace)
-tensorflow-cpu==2.12.0
+tensorflow-cpu==2.18.0
 torch
 deepface==0.0.93
 
-# Optional: Smoother cloud installation
 setuptools
-
