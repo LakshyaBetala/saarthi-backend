@@ -20,7 +20,7 @@ playsound==1.2.2
 
 
 # Deep learning (compatible with DeepFace)
-tensorflow==2.12.0
+tensorflow-cpu==2.12.0
 torch
 deepface==0.0.93
 
