@@ -2,28 +2,18 @@
 from ultralytics import YOLO
 from .utils import capture_frame
 
-import os
-if not os.path.exists("yolov8n.pt"):
-    import urllib.request
-    urllib.request.urlretrieve(
-        "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt",
-        "yolov8n.pt"
-    )
-yolo_model = YOLO("yolov8n.pt")
-
-
-# Indoor objects to detect
 indoor_objects = [
     "person", "chair", "table", "sofa", "lamp", "bed", "shelf", "tv", "monitor",
     "laptop", "keyboard", "mouse", "door", "window", "fan", "plant", "cupboard",
     "mirror", "stool", "bookshelf", "microwave", "refrigerator"
 ]
 
-def detect_objects_and_direction(camera_url):
+def detect_objects_and_direction(camera_url, model_path="models/yolov8n.pt"):
     frame = capture_frame(camera_url)
     if frame is None:
         return {"error": "Could not capture frame from camera."}
 
+    yolo_model = YOLO(model_path)
     results = yolo_model(frame)
     detections = results[0].boxes.data.cpu().numpy()
 
